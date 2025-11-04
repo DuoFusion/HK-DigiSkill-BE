@@ -11,6 +11,7 @@ const ObjectId = require('mongoose').Types.ObjectId
 const jwt_token_secret = config.JWT_TOKEN_SECRET
 
 
+
 export const signUp = async (req: Request, res: Response) => {
     reqInfo(req)
     try {
