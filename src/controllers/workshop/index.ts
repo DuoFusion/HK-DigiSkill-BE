@@ -1,6 +1,6 @@
-import { apiResponse } from "../../common";
-import { workshopModel, workshopPaymentModel, userCourseModel } from "../../database";
-import { countData, createData, findAllWithPopulate, getDataWithSorting, getFirstMatch, reqInfo, responseMessage, updateData } from "../../helper";
+import { apiResponse, USER_ROLES } from "../../common";
+import { workshopModel, workshopPaymentModel } from "../../database";
+import { countData, createData, findAllWithPopulate, getFirstMatch, reqInfo, responseMessage, updateData } from "../../helper";
 import { addWorkshopSchema, editWorkshopSchema, deleteWorkshopSchema, getWorkshopSchema, purchaseWorkshopSchema } from "../../validation";
 
 const ObjectId = require('mongoose').Types.ObjectId;
@@ -94,13 +94,13 @@ export const get_workshop_by_id = async (req, res) => {
     try {
         const { error, value } = getWorkshopSchema.validate(req.params)
         if (error) return res.status(501).json(new apiResponse(501, error?.details[0]?.message, {}, {}))
-        
+
         const populateModels = [
             { path: 'workshopCurriculum', select: 'title date thumbnail videoLink duration description attachment' },
             { path: 'workshopTestimonials', select: 'name designation rate description image' },
             { path: 'workshopFAQ', select: 'question answer' }
         ];
-        
+
         const response = await workshopModel.findById(value.id).populate(populateModels).lean()
         if (!response || response.isDeleted) return res.status(404).json(new apiResponse(404, responseMessage?.getDataNotFound("workshop"), {}, {}))
         return res.status(200).json(new apiResponse(200, responseMessage?.getDataSuccess("workshop"), response, {}))
@@ -119,28 +119,27 @@ export const purchase_workshop = async (req, res) => {
         const userId = req.headers.user?._id;
         if (!userId) return res.status(401).json(new apiResponse(401, "User not authenticated", {}, {}))
 
-        const workshop = await getFirstMatch(workshopModel, { _id: new ObjectId(value.workshop_id), isDeleted: false }, {}, {})
+        const workshop = await getFirstMatch(workshopModel, { _id: new ObjectId(value.workshopId), isDeleted: false }, {}, {})
         if (!workshop) return res.status(404).json(new apiResponse(404, responseMessage?.getDataNotFound("workshop"), {}, {}))
 
-        const existingPurchase = await getFirstMatch(workshopPaymentModel, { workshop_id: new ObjectId(value.workshop_id), user_id: new ObjectId(userId), isDeleted: false }, {}, {})
+        const existingPurchase = await getFirstMatch(workshopPaymentModel, { workshopId: new ObjectId(value.workshopId), user_id: new ObjectId(userId), isDeleted: false }, {}, {})
         if (existingPurchase) return res.status(400).json(new apiResponse(400, "Workshop already purchased", {}, {}))
 
         const purchaseData = {
-            workshop_id: new ObjectId(value.workshop_id),
-            user_id: new ObjectId(userId),
+            workshopId: new ObjectId(value.workshopId),
+            userId: new ObjectId(userId),
             amount: value.amount || workshop.price,
-            payment_status: value.payment_id ? 'completed' : 'pending',
-            payment_id: value.payment_id,
-            payment_method: value.payment_method,
-            transaction_date: new Date(),
-            receipt_number: value.receipt_number,
-            discount_amount: value.discount_amount || 0,
-            final_amount: value.final_amount || (value.amount || workshop.price),
+            paymentStatus: value.paymentId ? 'completed' : 'pending',
+            paymentId: value.paymentId,
+            paymentMethod: value.paymentMethod,
+            transactionDate: new Date(),
+            receiptNumber: value.receiptNumber,
+            discountAmount: value.discountAmount || 0,
+            finalAmount: value.finalAmount || (value.amount || workshop.price),
         }
 
         const response = await createData(workshopPaymentModel, purchaseData);
         if (!response) return res.status(404).json(new apiResponse(404, responseMessage?.addDataError, {}, {}))
-
         return res.status(200).json(new apiResponse(200, responseMessage?.purchaseSuccess, response, {}))
     } catch (error) {
         console.log(error)
@@ -150,12 +149,13 @@ export const purchase_workshop = async (req, res) => {
 
 export const get_my_workshops = async (req, res) => {
     reqInfo(req)
+    let { user } = req.headers, match: any = {}
     try {
-        const userId = req.headers.user?._id;
-        if (!userId) return res.status(401).json(new apiResponse(401, "User not authenticated", {}, {}))
-
+        if (user.role === USER_ROLES.USER) {
+            match.userId = new ObjectId(user._id)
+        }
         const { page, limit } = req.query
-        let criteria: any = { user_id: new ObjectId(userId), isDeleted: false }, options: any = { lean: true }
+        let criteria: any = { ...match, isDeleted: false }, options: any = { lean: true }
 
         options.sort = { createdAt: -1 }
         if (page && limit) {
@@ -163,9 +163,12 @@ export const get_my_workshops = async (req, res) => {
             options.limit = parseInt(limit)
         }
 
-        const response = await workshopPaymentModel.find(criteria, {}, options)
-            .populate({ path: 'workshop_id', select: 'title subTitle image price mrpPrice language duration' })
-            .lean()
+        let populateModel = [
+            { path: 'workshopId', select: 'title subTitle image price mrpPrice language duration' },
+            { path: 'userId', select: 'fullName email phoneNumber password profilePhoto designation' }
+        ]
+
+        const response = await findAllWithPopulate(workshopPaymentModel, criteria, {}, options, populateModel)
         const totalCount = await countData(workshopPaymentModel, criteria)
         const stateObj = {
             page: parseInt(page) || 1,
@@ -178,4 +181,3 @@ export const get_my_workshops = async (req, res) => {
         return res.status(500).json(new apiResponse(500, responseMessage?.internalServerError, {}, error))
     }
 }
-

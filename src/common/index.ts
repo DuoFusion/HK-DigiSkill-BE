@@ -69,3 +69,21 @@ export const FAQ_STATUS = {
     WORKSHOP: "workshop",
     COURSE: "course",
 }
+
+export const HERO_BANNER_TYPE = {
+    WEB: "web",
+    APP: "app",
+}
+
+export const LEGALITY_TYPE = {
+    TERMS_CONDITION: "termsCondition",
+    PRIVACY_POLICY: "privacyPolicy",
+    REFUND_POLICY: "refundPolicy",
+}
+
+export const PAYMENT_STATUS = {
+    PENDING: "pending",
+    COMPLETED: "completed",
+    FAILED: "failed",
+    REFUNDED: "refunded",
+}

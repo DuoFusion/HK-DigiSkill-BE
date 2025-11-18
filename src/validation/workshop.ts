@@ -44,12 +44,12 @@ export const getWorkshopSchema = Joi.object().keys({
 })
 
 export const purchaseWorkshopSchema = Joi.object().keys({
-    workshop_id: Joi.string().required(),
+    workshopId: Joi.string().required(),
     amount: Joi.number().optional(),
-    payment_id: Joi.string().allow('', null).optional(),
-    payment_method: Joi.string().allow('', null).optional(),
-    receipt_number: Joi.string().allow('', null).optional(),
-    discount_amount: Joi.number().default(0),
-    final_amount: Joi.number().optional(),
+    paymentId: Joi.string().allow('', null).optional(),
+    paymentMethod: Joi.string().allow('', null).optional(),
+    receiptNumber: Joi.string().allow('', null).optional(),
+    discountAmount: Joi.number().default(0),
+    finalAmount: Joi.number().optional(),
 })
 

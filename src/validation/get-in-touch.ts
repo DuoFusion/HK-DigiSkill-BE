@@ -5,7 +5,7 @@ export const addGetInTouchSchema = Joi.object().keys({
     email: Joi.string().email().required(),
     phoneNumber: Joi.string().allow('', null).optional(),
     subject: Joi.string().allow('', null).optional(),
-    message: Joi.string().required(),
+    message: Joi.string().optional(),
 })
 
 export const editGetInTouchSchema = Joi.object().keys({

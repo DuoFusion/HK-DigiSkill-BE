@@ -1,3 +1,5 @@
+import { USER_ROLES } from "../../common";
+
 const mongoose = require('mongoose')
 
 const userSchema: any = new mongoose.Schema({
@@ -9,7 +11,7 @@ const userSchema: any = new mongoose.Schema({
     designation: { type: String },
     referralCode: { type: String, default: null },
     agreeTerms: { type: Boolean, default: false },
-    role: { type: String, enum: ['admin', 'user'], default: 'user' },
+    role: { type: String, enum: Object.values(USER_ROLES), default: USER_ROLES.USER },
     otp: { type: Number, default: null },
     otpExpireTime: { type: Date, default: null },
     isEmailVerified: { type: Boolean, default: false },

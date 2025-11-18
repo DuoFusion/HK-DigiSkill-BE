@@ -1,6 +1,6 @@
 import { apiResponse } from "../../common";
 import { workshopCurriculumModel } from "../../database";
-import { countData, createData, getDataWithSorting, getFirstMatch, reqInfo, responseMessage, updateData } from "../../helper";
+import { countData, createData, findAllWithPopulate, getDataWithSorting, getFirstMatch, reqInfo, responseMessage, updateData } from "../../helper";
 import { addWorkshopCurriculumSchema, editWorkshopCurriculumSchema, deleteWorkshopCurriculumSchema, getWorkshopCurriculumSchema } from "../../validation";
 
 const ObjectId = require('mongoose').Types.ObjectId;
@@ -40,7 +40,7 @@ export const delete_workshop_curriculum_by_id = async (req, res) => {
     try {
         const { error, value } = deleteWorkshopCurriculumSchema.validate(req.params)
         if (error) return res.status(501).json(new apiResponse(501, error?.details[0]?.message, {}, {}))
-        const response = await updateData(workshopCurriculumModel, { _id: new ObjectId(value.id) }, { isDeleted: true }, { new: true })
+        const response = await updateData(workshopCurriculumModel, { _id: new ObjectId(value.id), isDeleted: false }, { isDeleted: true }, { new: true })
         if (!response) return res.status(404).json(new apiResponse(404, responseMessage?.getDataNotFound("workshop curriculum"), {}, {}))
         return res.status(200).json(new apiResponse(200, responseMessage?.deleteDataSuccess("workshop curriculum"), response, {}))
     } catch (error) {
@@ -52,7 +52,7 @@ export const delete_workshop_curriculum_by_id = async (req, res) => {
 export const get_all_workshop_curriculum = async (req, res) => {
     reqInfo(req)
     try {
-        const { page, limit, search, startDate, endDate, workshopId } = req.query
+        const { page, limit, search, startDate, endDate, workshopFilter } = req.query
         let criteria: any = { isDeleted: false }, options: any = { lean: true }
 
         if (search) {
@@ -61,8 +61,8 @@ export const get_all_workshop_curriculum = async (req, res) => {
                 { description: { $regex: search, $options: 'si' } },
             ]
         }
-        if (workshopId) {
-            criteria.workshopId = new ObjectId(workshopId)
+        if (workshopFilter) {
+            criteria.workshopId = new ObjectId(workshopFilter)
         }
         if (startDate && endDate) {
             criteria.createdAt = { $gte: new Date(startDate), $lte: new Date(endDate) }
@@ -73,7 +73,11 @@ export const get_all_workshop_curriculum = async (req, res) => {
             options.limit = parseInt(limit)
         }
 
-        const response = await getDataWithSorting(workshopCurriculumModel, criteria, {}, options)
+        let populateModel = [
+            { path: 'workshopId', select: 'title subTitle image price mrpPrice language duration' },
+        ]
+
+        const response = await findAllWithPopulate(workshopCurriculumModel, criteria, {}, options, populateModel)
         const totalCount = await countData(workshopCurriculumModel, criteria)
         const stateObj = {
             page: parseInt(page) || 1,

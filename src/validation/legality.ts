@@ -1,17 +1,7 @@
 import Joi from "joi";
+import { LEGALITY_TYPE } from "../common";
 
-export const addLegalitySchema = Joi.object().keys({
-    type: Joi.string().valid('TermsCondition', 'PrivacyPolicy', 'RefundPolicy').required(),
+export const addEditLegalitySchema = Joi.object().keys({
+    type: Joi.string().valid(...Object.values(LEGALITY_TYPE)).required(),
     content: Joi.string().required(),
 })
-
-export const editLegalitySchema = Joi.object().keys({
-    legalityId: Joi.string().required(),
-    type: Joi.string().valid('TermsCondition', 'PrivacyPolicy', 'RefundPolicy').optional(),
-    content: Joi.string().required(),
-})
-
-export const getLegalitySchema = Joi.object().keys({
-    id: Joi.string().required(),
-})
-

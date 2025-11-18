@@ -33,17 +33,28 @@ export const adminJWT = async (req: Request, res: Response, next) => {
 
 export const userJWT = async (req: Request, res: Response, next) => {
     let { authorization } = req.headers, result: any
-    try {
-        let isVerifyToken = jwt.verify(authorization, jwt_token_secret)
-        result = await userModel.findOne({ _id: new ObjectId(isVerifyToken._id), isDeleted: false }).populate("roleId").lean()
-        if (result?.isBlocked == true) return res.status(410).json(new apiResponse(410, responseMessage?.accountBlock, {}, {}));
-        if (result?.isDeleted == false) {
-            req.headers.user = result
-            return next()
-        } else {
-            return next()
+    if (authorization) {
+        try {
+            let isVerifyToken = jwt.verify(authorization, jwt_token_secret)
+            result = await userModel.findOne({ _id: new ObjectId(isVerifyToken._id), isDeleted: false }).lean()
+            if (result?.isBlocked == true) return res.status(410).json(new apiResponse(410, responseMessage?.accountBlock, {}, {}));
+            if (result?.isDeleted == false) {
+                req.headers.user = result
+                return next()
+            } else {
+                return next()
+            }
+        } catch (err) {
+            if (err.name === "TokenExpiredError") {
+                return res.status(410).json(new apiResponse(410, "Your token has been expired.", {}, {}));
+            }
+            if (err.message == "invalid signature") {
+                return res.status(410).json(new apiResponse(410, `Invalid Token`, {}, {}))
+            }
+            console.log(err);
+            return res.status(410).json(new apiResponse(410, "Invalid Token", {}, {}))
         }
-    } catch (err) {
+    } else {
         return next()
     }
 }

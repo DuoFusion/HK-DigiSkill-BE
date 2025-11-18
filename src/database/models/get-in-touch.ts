@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 
 const getInTouchSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    email: { type: String, required: true },
+    name: { type: String },
+    email: { type: String },
     phoneNumber: { type: String },
     subject: { type: String },
-    message: { type: String, required: true },
+    message: { type: String },
     isDeleted: { type: Boolean, default: false },
     isBlocked: { type: Boolean, default: false },
     isRead: { type: Boolean, default: false },
