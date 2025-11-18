@@ -1,6 +1,6 @@
 import { apiResponse } from "../../common";
 import { workshopCurriculumModel } from "../../database";
-import { countData, createData, findAllWithPopulate, getDataWithSorting, getFirstMatch, reqInfo, responseMessage, updateData } from "../../helper";
+import { countData, createData, findAllWithPopulate, getFirstMatch, reqInfo, responseMessage, updateData } from "../../helper";
 import { addWorkshopCurriculumSchema, editWorkshopCurriculumSchema, deleteWorkshopCurriculumSchema, getWorkshopCurriculumSchema } from "../../validation";
 
 const ObjectId = require('mongoose').Types.ObjectId;

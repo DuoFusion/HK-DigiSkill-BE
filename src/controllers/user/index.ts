@@ -1,7 +1,7 @@
 import { apiResponse, getUniqueOtp, USER_ROLES } from "../../common";
 import { userModel } from "../../database";
 import { countData, createData, email_verification_mail, getDataWithSorting, getFirstMatch, reqInfo, responseMessage, updateData } from "../../helper";
-import { addUserSchema, editUserSchema, deleteUserSchema, getUserSchema, blockUnblockUserSchema } from "../../validation";
+import { addUserSchema, editUserSchema, deleteUserSchema, getUserSchema } from "../../validation";
 
 const ObjectId = require('mongoose').Types.ObjectId;
 
