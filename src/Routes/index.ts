@@ -15,6 +15,11 @@ import { legalityRoute } from './legality'
 import { getInTouchRoute } from './get-in-touch'
 import { workshopRoute } from './workshop'
 import { workshopCurriculumRoute } from './workshop-curriculum'
+import { couponCodeRoute } from './coupon-code'
+import { courseLessonRoute } from './course-lesson'
+import { courseCurriculumRoute } from './course-curriculum'
+import { instructorRoute } from './instructor'
+import { referralCodeRoute } from './referral-code'
 
 const router = express.Router()
 
@@ -34,5 +39,10 @@ router.use('/legality', legalityRoute)
 router.use('/get-in-touch', getInTouchRoute)
 router.use('/workshop', workshopRoute)
 router.use('/workshop-curriculum', workshopCurriculumRoute)
+router.use('/coupon-code', couponCodeRoute)
+router.use('/course-lesson', courseLessonRoute)
+router.use('/course-curriculum', courseCurriculumRoute)
+router.use('/instructor', instructorRoute)
+router.use('/referral-code', referralCodeRoute)
 
 export { router }

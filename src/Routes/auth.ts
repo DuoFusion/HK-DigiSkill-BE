@@ -12,5 +12,6 @@ router.post('/reset-password', authController.reset_password)
 router.post('/resend-otp', authController.resend_otp)
 router.post('/change-password', authController.change_user_password)
 router.post('/update-profile', userJWT, authController.update_profile)
+router.post('/delete-account', authController.delete_user_account)
 
 export const authRouter = router; 

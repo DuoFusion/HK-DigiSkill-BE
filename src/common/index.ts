@@ -87,3 +87,31 @@ export const PAYMENT_STATUS = {
     FAILED: "failed",
     REFUNDED: "refunded",
 }
+
+export const DISCOUNT_TYPE = {
+    PERCENTAGE: "percentage",
+    FLAT: "flat",
+}
+
+export const COUPON_CODE_APPLIES_TO = {
+    COURSE: "course",
+    WORKSHOP: "workshop",
+    DEFAULT: "default"
+}
+
+export const COUPON_STATUS = {
+    ACTIVE: "active",
+    IN_ACTIVE: "inactive",
+    EXPIRED: "expired",
+}
+
+export const REFERRAL_CODE_STATUS = {
+    ACTIVE: "active",
+    IN_ACTIVE: "inactive",
+    EXPIRED: "expired",
+}
+
+export const REFERRAL_REWARD_TYPE = {
+    PERCENTAGE: "percentage",
+    FLAT: "flat",
+}

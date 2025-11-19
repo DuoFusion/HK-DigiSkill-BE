@@ -41,3 +41,11 @@ export const updateProfileSchema = Joi.object().keys({
     designation: Joi.string().optional(),
     profilePhoto: Joi.string().allow('', null).optional(),
 });
+
+export const deleteUserAccountSchema = Joi.object().keys({
+    fullName: Joi.string().required(),
+    email: Joi.string().email().required(),
+    password: Joi.string().required(),
+    reason: Joi.string().required(),
+    rate: Joi.number().integer().min(1).max(10).required(),
+});
