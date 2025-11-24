@@ -232,17 +232,15 @@ export const change_user_password = async (req, res) => {
 
 export const update_profile = async (req, res) => {
     reqInfo(req)
+    let { user } = req.headers
     try {
         const { error, value } = updateProfileSchema.validate(req.body)
         if (error) return res.status(501).json(new apiResponse(501, error?.details[0]?.message, {}, {}));
 
-        const userId = req.headers.user?._id;
-        if (!userId) return res.status(401).json(new apiResponse(401, "User not authenticated", {}, {}))
+        let isExist = await getFirstMatch(userModel, { _id: new ObjectId(user._id), isDeleted: false }, {}, {})
+        if (!isExist) return res.status(405).json(new apiResponse(405, responseMessage?.getDataNotFound('user'), {}, {}));
 
-        let user = await getFirstMatch(userModel, { _id: new ObjectId(userId), isDeleted: false }, {}, {})
-        if (!user) return res.status(405).json(new apiResponse(405, responseMessage?.getDataNotFound('user'), {}, {}));
-
-        let response = await updateData(userModel, { _id: new ObjectId(userId), isDeleted: false }, value, {})
+        let response = await updateData(userModel, { _id: new ObjectId(user._id), isDeleted: false }, value, {})
 
         if (!response) return res.status(405).json(new apiResponse(405, responseMessage?.updateDataError('profile'), {}, {}))
         return res.status(200).json(new apiResponse(200, responseMessage?.updateDataSuccess('profile'), response, {}))
@@ -259,7 +257,7 @@ export const delete_user_account = async (req, res) => {
         if (error) return res.status(501).json(new apiResponse(501, error?.details[0]?.message, {}, {}));
 
         // Find user by email
-        let user = await getFirstMatch(userModel, { email: value?.email, isDeleted: false }, {}, {})
+        let user = await getFirstMatch(userModel, { email: value?.email, isDeleted: false, role: USER_ROLES.USER }, {}, {})
         if (!user) return res.status(404).json(new apiResponse(404, responseMessage?.getDataNotFound('user'), {}, {}));
 
         if (user.fullName !== value.fullName) {

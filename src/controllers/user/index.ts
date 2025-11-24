@@ -1,4 +1,4 @@
-import { apiResponse, getUniqueOtp, USER_ROLES } from "../../common";
+import { apiResponse, generateHash, getUniqueOtp, USER_ROLES } from "../../common";
 import { userModel } from "../../database";
 import { countData, createData, email_verification_mail, getDataWithSorting, getFirstMatch, reqInfo, responseMessage, updateData } from "../../helper";
 import { addUserSchema, editUserSchema, deleteUserSchema, getUserSchema } from "../../validation";
@@ -18,7 +18,7 @@ export const add_user = async (req, res) => {
         if (existingUser) return res.status(400).json(new apiResponse(400, responseMessage?.dataAlreadyExist("Phone Number"), {}, {}))
 
         let otp = await getUniqueOtp()
-
+        value.password = await generateHash(value.password)
         value.otp = otp;
         value.otpExpireTime = new Date(Date.now() + 2 * 60 * 1000);
 
@@ -68,7 +68,7 @@ export const delete_user_by_id = async (req, res) => {
 export const get_all_user = async (req, res) => {
     reqInfo(req)
     try {
-        const { page, limit, search, startDate, endDate, activeFilter, isEmailVerified } = req.query
+        const { page, limit, search, startDate, endDate, activeFilter } = req.query
         let criteria: any = { isDeleted: false }, options: any = { lean: true }
 
         if (search) {
@@ -78,6 +78,8 @@ export const get_all_user = async (req, res) => {
                 { phoneNumber: { $regex: search, $options: 'si' } }
             ]
         }
+
+        criteria.role = USER_ROLES.USER
 
         if (activeFilter !== undefined) criteria.isBlocked = activeFilter === 'true'
 
